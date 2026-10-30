@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 import {
   loginUser,
@@ -28,12 +28,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState<number | null>(null);
   const [isRestoring, setIsRestoring] = useState(true);
 
-  const logout = useCallback(async () => {
-    await clearSession();
-    setUserId(null);
-  }, []);
-
   useEffect(() => {
+    setUnauthorizedHandler(logout);
+
     loadSession()
       .then((session) => setUserId(session?.userId ?? null))
       // If the storage cannot be read, the app starts logged out instead of crashing.
@@ -41,10 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsRestoring(false));
   }, []);
 
-  useEffect(() => {
-    setUnauthorizedHandler(() => void logout());
-    return () => setUnauthorizedHandler(null);
-  }, [logout]);
+  async function logout() {
+    await clearSession();
+    setUserId(null);
+  }
 
   async function startSession(response: AuthResponse) {
     await saveSession({ accessToken: response.accessToken, userId: response.user.id });

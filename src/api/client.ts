@@ -1,3 +1,5 @@
+import axios from "axios";
+
 import { API_URL } from "@/constants/config";
 import { getToken } from "@/storage/session";
 
@@ -23,11 +25,14 @@ interface RequestOptions {
   body?: unknown;
 }
 
+// Without a time limit, a lost connection would keep loading forever.
+const api = axios.create({ baseURL: API_URL, timeout: 10000 });
+
 let unauthorizedHandler: (() => void) | null = null;
 
 // Defines what happens when the token is invalid or expired.
 // AuthContext registers its logout here, so screens don't have to handle 401 themselves.
-export function setUnauthorizedHandler(handler: (() => void) | null): void {
+export function setUnauthorizedHandler(handler: () => void): void {
   unauthorizedHandler = handler;
 }
 
@@ -36,36 +41,31 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
 // Throws ApiError if there is no connection, the session expired or the server returns an error.
 export async function request<T>(path: string, { method = "GET", body }: RequestOptions = {}): Promise<T> {
   const token = await getToken();
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
 
-  let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, {
+    const response = await api.request<T>({
+      url: path,
       method,
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      data: body,
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
-  } catch {
-    throw new ApiError("No connection to the server. Check your connection and try again.", null);
-  }
+    return response.data;
+  } catch (error) {
+    if (!axios.isAxiosError(error) || !error.response) {
+      throw new ApiError("No connection to the server. Check your connection and try again.", null);
+    }
 
-  if (response.status === 401 || response.status === 403) {
-    unauthorizedHandler?.();
-    throw new ApiError("Your session has expired. Please log in again.", response.status);
-  }
+    const { status, data } = error.response;
+    if (status === 401 || status === 403) {
+      unauthorizedHandler?.();
+      throw new ApiError("Your session has expired. Please log in again.", status);
+    }
 
-  if (!response.ok) {
     // json-server-auth returns errors as a JSON string, e.g. "Incorrect password".
-    const serverMessage: unknown = await response.json().catch(() => undefined);
     throw new ApiError(
       "Something went wrong. Please try again.",
-      response.status,
-      typeof serverMessage === "string" ? serverMessage : undefined,
+      status,
+      typeof data === "string" ? data : undefined,
     );
   }
-
-  return (await response.json()) as T;
 }

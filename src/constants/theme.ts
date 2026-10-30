@@ -11,6 +11,8 @@ export const theme: MD3Theme = {
     onPrimary: "#FFFFFF",
     primaryContainer: "#D6E8FF",
     onPrimaryContainer: "#003A7A",
+    tertiary: "#FF2D78",
+    onTertiary: "#FFFFFF",
     error: "#FF3B30",
     onError: "#FFFFFF",
     errorContainer: "#FFE5E3",

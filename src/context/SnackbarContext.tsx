@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { Portal, Snackbar } from "react-native-paper";
 
 // Optional action in the snackbar, e.g. "Undo".
@@ -23,9 +23,9 @@ const SnackbarContext = createContext<SnackbarContextValue | null>(null);
 export function SnackbarProvider({ children }: { children: ReactNode }) {
   const [snackbar, setSnackbar] = useState<SnackbarState | null>(null);
 
-  const showMessage = useCallback((message: string, action?: SnackbarAction) => {
+  function showMessage(message: string, action?: SnackbarAction) {
     setSnackbar({ message, action });
-  }, []);
+  }
 
   return (
     <SnackbarContext.Provider value={{ showMessage }}>

@@ -33,6 +33,14 @@ Das Backend ist danach unter `http://localhost:3030` erreichbar, aus dem Android
 npm run android
 ```
 
+### Emulator mit Android 17 (API 37)
+
+Expo Go braucht dort die Berechtigung für das lokale Netzwerk, sonst erreicht die App das Backend nicht und zeigt „No connection to the server“. Einmalig ausführen, nachdem Expo Go installiert ist:
+
+```bash
+adb shell pm grant host.exp.exponent android.permission.ACCESS_LOCAL_NETWORK
+```
+
 ## Tech-Stack
 
 - React Native mit Expo (TypeScript)

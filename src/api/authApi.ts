@@ -38,12 +38,8 @@ export async function registerUser(data: RegistrationData): Promise<AuthResponse
   try {
     return await request<AuthResponse>("/register", { method: "POST", body: data });
   } catch (error) {
-    if (error instanceof ApiError && error.status === 400) {
-      const message =
-        error.serverMessage === "Email already exists"
-          ? "An account with this email already exists. Log in instead."
-          : "Your entries could not be saved. Check them and try again.";
-      throw new ApiError(message, 400, error.serverMessage);
+    if (error instanceof ApiError && error.serverMessage === "Email already exists") {
+      throw new ApiError("An account with this email already exists. Log in instead.", 400);
     }
     throw error;
   }

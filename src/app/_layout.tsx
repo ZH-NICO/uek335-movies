@@ -24,6 +24,7 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.background } }}>
       <Stack.Protected guard={userId !== null}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="movies/[id]" />
       </Stack.Protected>
       <Stack.Protected guard={userId === null}>
         <Stack.Screen name="login" />

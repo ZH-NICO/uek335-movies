@@ -1,6 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { Card, Icon, Text, useTheme } from "react-native-paper";
 
+import { Poster } from "@/components/Poster";
 import type { Movie } from "@/types/movie";
 
 interface MovieCardProps {
@@ -8,7 +9,7 @@ interface MovieCardProps {
   onPress: () => void;
 }
 
-// One movie in the list: title, "year · genre" and the IMDb rating.
+// One movie in the list: poster, title, "year · genre" and the IMDb rating.
 // Missing values are left out, because many movies in the backend are incomplete.
 export function MovieCard({ movie, onPress }: MovieCardProps) {
   const theme = useTheme();
@@ -19,6 +20,7 @@ export function MovieCard({ movie, onPress }: MovieCardProps) {
   return (
     <Card mode="outlined" onPress={onPress} style={styles.card} accessibilityLabel={`Open ${movie.title}`}>
       <Card.Content style={styles.content}>
+        <Poster url={movie.posterUrl} iconSize={24} style={styles.poster} />
         <View style={styles.text}>
           <Text variant="titleMedium">{movie.title}</Text>
           <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
@@ -44,6 +46,12 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 12,
+  },
+  poster: {
+    width: 48,
+    height: 72,
+    borderRadius: 6,
   },
   text: {
     flex: 1,

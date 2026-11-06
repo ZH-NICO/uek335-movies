@@ -9,11 +9,13 @@ interface MovieCardProps {
   onPress: () => void;
 }
 
-// One movie in the list: poster, title, "year · genre" and the IMDb rating.
-// Missing values are left out, because many movies in the backend are incomplete.
+/**
+ * One movie in the list: poster, title, "year · genre" and the IMDb rating.
+ * Missing values are left out, because many movies in the backend are incomplete.
+ */
 export function MovieCard({ movie, onPress }: MovieCardProps) {
   const theme = useTheme();
-  // releaseDate is text like "Sep 03 2009", the year is always at the end.
+  /** releaseDate is text like "Sep 03 2009", the year is always at the end. */
   const year = movie.releaseDate.slice(-4);
   const subtitle = [year, movie.majorGenre].filter(Boolean).join(" · ");
 

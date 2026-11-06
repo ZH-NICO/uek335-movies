@@ -11,12 +11,13 @@ import { PasswordField } from "@/components/PasswordField";
 import { useAuth } from "@/context/AuthContext";
 import { validateEmail, validateLoginPassword } from "@/utils/validation";
 
+/** Login screen with email and password. */
 export default function Login() {
   const theme = useTheme();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // Errors only appear after the first submit, so an empty form is not shown as wrong.
+  /** Errors only appear after the first submit, so an empty form is not shown as wrong. */
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
@@ -24,6 +25,7 @@ export default function Login() {
   const emailError = validateEmail(email);
   const passwordError = validateLoginPassword(password);
 
+  /** Checks the fields first and only sends the request if they are valid. */
   async function handleLogin() {
     setIsSubmitted(true);
     setFailure(null);
@@ -33,7 +35,7 @@ export default function Login() {
 
     setIsSubmitting(true);
     try {
-      // After the login, the root layout switches to the tabs.
+      /** After the login, the root layout switches to the tabs. */
       await login({ email: email.trim(), password });
     } catch (error) {
       setFailure(error instanceof ApiError ? error.message : "Something went wrong. Please try again.");

@@ -3,12 +3,12 @@ import { Icon, Text, TextInput, useTheme, type TextInputProps } from "react-nati
 
 export interface FormFieldProps extends Omit<TextInputProps, "label" | "error" | "mode"> {
   label: string;
-  // Shown below the field as long as there is no error.
+  /** Shown below the field as long as there is no error. */
   hint?: string;
   error?: string;
 }
 
-// Text field with a label above it and a hint or error text below it.
+/** Text field with a label above it and a hint or error text below it. */
 export function FormField({ label, hint, error, ...inputProps }: FormFieldProps) {
   const theme = useTheme();
 

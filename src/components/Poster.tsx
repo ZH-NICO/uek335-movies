@@ -3,13 +3,16 @@ import { Image, StyleSheet, View, type ImageStyle, type StyleProp } from "react-
 import { Icon, useTheme } from "react-native-paper";
 
 interface PosterProps {
+  /** Link to the image, often missing in the backend. */
   url?: string | null;
   iconSize: number;
   style: StyleProp<ImageStyle>;
 }
 
-// Movie poster with an icon as fallback.
-// Many poster links in the backend are missing or broken, so both cases show the icon.
+/**
+ * Movie poster with an icon as fallback.
+ * Many poster links in the backend are missing or broken, so both cases show the icon.
+ */
 export function Poster({ url, iconSize, style }: PosterProps) {
   const theme = useTheme();
   const [hasError, setHasError] = useState(false);

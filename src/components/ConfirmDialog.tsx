@@ -3,18 +3,20 @@ import { Avatar, Button, Dialog, Portal, Text, useTheme } from "react-native-pap
 
 interface ConfirmDialogProps {
   visible: boolean;
-  // Name of a Material Community icon, e.g. "trash-can-outline".
+  /** Name of a Material Community icon, e.g. "trash-can-outline". */
   icon: string;
   title: string;
   message: string;
-  // Label of the confirming action, e.g. "Delete".
+  /** Label of the confirming action, e.g. "Delete". */
   confirmLabel: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-// Asks for confirmation before an action that cannot be undone (delete, log out).
-// The confirming action is red so it is not chosen by accident.
+/**
+ * Asks for confirmation before an action that cannot be undone (delete, log out).
+ * The confirming action is red so it is not chosen by accident.
+ */
 export function ConfirmDialog({
   visible,
   icon,

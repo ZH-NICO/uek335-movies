@@ -4,12 +4,13 @@ import { Chip, Menu } from "react-native-paper";
 
 import type { MovieFilters } from "@/api/movieApi";
 
+/** One entry in a filter menu: text for the user and value for the backend. */
 interface FilterOption {
   label: string;
   value: string;
 }
 
-// Genres
+/** Genres that exist in the backend. The value is sent as majorGenre. */
 const GENRE_OPTIONS: FilterOption[] = [
   "Action",
   "Animation",
@@ -21,13 +22,13 @@ const GENRE_OPTIONS: FilterOption[] = [
   "Thriller",
 ].map((genre) => ({ label: genre, value: genre }));
 
-// The value is the start of the year, e.g. "199" matches every year from 1990 to 1999.
+/** The value is the start of the year, e.g. "199" matches every year from 1990 to 1999. */
 const DECADE_OPTIONS: FilterOption[] = ["197", "198", "199", "200", "201", "202"].map((start) => ({
   label: `${start}0s`,
   value: start,
 }));
 
-//die Werte gehen später ans Backend
+/** Minimum IMDb rating. The value is sent as imdbRating_gte. */
 const RATING_OPTIONS: FilterOption[] = ["7", "8", "9"].map((rating) => ({
   label: `IMDb ≥ ${rating}`,
   value: rating,
@@ -40,12 +41,15 @@ interface FilterChipProps {
   onChange: (value?: string) => void;
 }
 
-// One chip that opens a menu with its options.
-// When a value is selected, the chip shows it and an "x" to remove the filter.
+/**
+ * One chip that opens a menu with its options.
+ * When a value is selected, the chip shows it and an "x" to remove the filter.
+ */
 function FilterChip({ label, options, value, onChange }: FilterChipProps) {
   const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((option) => option.value === value);
 
+  /** Closes the menu and passes the new value, or undefined to remove the filter. */
   function select(newValue?: string) {
     setIsOpen(false);
     onChange(newValue);
@@ -80,7 +84,7 @@ interface FilterChipsProps {
   onChange: (filters: MovieFilters) => void;
 }
 
-// Filters for genre, decade and IMDb rating below the search bar.
+/** Filters for genre, decade and IMDb rating below the search bar. */
 export function FilterChips({ filters, onChange }: FilterChipsProps) {
   return (
     <View style={styles.row}>
@@ -107,7 +111,7 @@ export function FilterChips({ filters, onChange }: FilterChipsProps) {
 }
 
 const styles = StyleSheet.create({
-  // Chips wrap to a second line on small screens instead of being cut off.
+  /** Chips wrap to a second line on small screens instead of being cut off. */
   row: {
     flexDirection: "row",
     flexWrap: "wrap",

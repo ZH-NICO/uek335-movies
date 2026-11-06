@@ -1,13 +1,16 @@
 import { StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, Icon, Text, useTheme } from "react-native-paper";
 
+/** The state to show. An error needs a retry action, so the user always has a next step. */
 type StatusViewProps =
   | { status: "loading" }
   | { status: "error"; message: string; onRetry: () => void }
   | { status: "empty"; message: string };
 
-// Shows a full-screen state instead of a list: loading, an error with "Try again", or no results.
-// Used by every movie screen, so these states look the same everywhere.
+/**
+ * Shows a full-screen state instead of a list: loading, an error with "Try again", or no results.
+ * Used by every movie screen, so these states look the same everywhere.
+ */
 export function StatusView(props: StatusViewProps) {
   const theme = useTheme();
 

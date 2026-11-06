@@ -14,15 +14,16 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import { useMovie } from "@/hooks/useMovie";
 import type { Movie } from "@/types/movie";
 
-// Fallback for values that are missing in the backend.
+/** Fallback for values that are missing in the backend. */
 const NO_VALUE = "–";
 
+/** Label and value of one line in the detail card. */
 interface DetailRowProps {
   label: string;
   value: string;
 }
 
-// One line in the detail card: label on the left, value on the right.
+/** One line in the detail card: label on the left, value on the right. */
 function DetailRow({ label, value }: DetailRowProps) {
   const theme = useTheme();
 
@@ -38,6 +39,7 @@ function DetailRow({ label, value }: DetailRowProps) {
   );
 }
 
+/** Detail screen of one movie, opened from the list. */
 export default function MovieDetails() {
   const router = useRouter();
   const theme = useTheme();
@@ -47,8 +49,12 @@ export default function MovieDetails() {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Restores a deleted movie with all its fields and its old id.
-  // The list gets a new "refresh" value, because it is already visible and would not reload by itself.
+  /**
+   * Restores a deleted movie with all its fields and its old id.
+   * The list gets a new "refresh" value, because it is already visible and would not reload by itself.
+   *
+   * @param deletedMovie - The movie as it was before deleting.
+   */
   async function undoDelete(deletedMovie: Movie) {
     try {
       await createMovie(deletedMovie);
@@ -58,6 +64,11 @@ export default function MovieDetails() {
     }
   }
 
+  /**
+   * Deletes the movie and goes back to the list, where the snackbar offers "Undo".
+   *
+   * @param movieToDelete - The movie shown on this screen.
+   */
   async function handleDelete(movieToDelete: Movie) {
     setIsDialogVisible(false);
     setIsDeleting(true);
@@ -74,6 +85,7 @@ export default function MovieDetails() {
     }
   }
 
+  /** Shows the movie, or the loading or error state. */
   function renderContent() {
     if (isLoading) {
       return <StatusView status="loading" />;

@@ -2,6 +2,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Tabs } from "expo-router";
 import { useTheme } from "react-native-paper";
 
+/** Tab bar of the logged-in part: Home, Movies and Profile. Colors come from the Paper theme. */
 export default function TabsLayout() {
   const theme = useTheme();
 

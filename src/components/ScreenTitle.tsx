@@ -6,7 +6,7 @@ interface ScreenTitleProps {
   subtitle: string;
 }
 
-// Large title with a short description below it, used at the top of every screen.
+/** Large title with a short description below it, used at the top of every screen. */
 export function ScreenTitle({ title, subtitle }: ScreenTitleProps) {
   const theme = useTheme();
 
@@ -15,7 +15,7 @@ export function ScreenTitle({ title, subtitle }: ScreenTitleProps) {
       <Text variant="headlineMedium" style={{ fontWeight: "700" }}>
         {title}
       </Text>
-      <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+      <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
         {subtitle}
       </Text>
     </View>

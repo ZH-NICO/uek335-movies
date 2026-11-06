@@ -15,7 +15,7 @@ export default function NewMovie() {
    */
   async function handleSubmit(values: MovieFormValues) {
     await createMovie(values);
-    showMessage("Movie saved.");
+    showMessage(`«${values.title}» saved.`);
     router.back();
   }
 

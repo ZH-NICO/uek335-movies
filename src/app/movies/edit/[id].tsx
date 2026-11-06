@@ -22,7 +22,7 @@ export default function EditMovie() {
     /** PUT replaces the whole movie, so fields that are not in the form (e.g. the poster) are sent along. */
     const handleSubmit = async (values: MovieFormValues) => {
       await updateMovie({ ...movie, ...values });
-      showMessage("Changes saved.");
+      showMessage(`«${values.title}» saved.`);
       router.back();
     };
 

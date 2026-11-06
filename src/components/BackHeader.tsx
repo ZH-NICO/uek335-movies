@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import type { ReactNode } from "react";
-import { Appbar, useTheme } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Appbar, Button, useTheme } from "react-native-paper";
 
 interface BackHeaderProps {
   /** Name of the screen the back button returns to. */
@@ -16,9 +17,17 @@ export function BackHeader({ label, children }: BackHeaderProps) {
 
   return (
     <Appbar.Header style={{ backgroundColor: theme.colors.background }}>
-      <Appbar.BackAction onPress={() => router.back()} accessibilityLabel={`Back to ${label}`} />
-      <Appbar.Content title={label} titleStyle={{ color: theme.colors.primary }} />
+      <Button icon="chevron-left" mode="text" compact onPress={() => router.back()}>
+        {label}
+      </Button>
+      <View style={styles.spacer} />
       {children}
     </Appbar.Header>
   );
 }
+
+const styles = StyleSheet.create({
+  spacer: {
+    flex: 1,
+  },
+});

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
-import { Button, Menu, Text, useTheme } from "react-native-paper";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Button, Menu, useTheme } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ApiError } from "@/api/client";
 import { BackHeader } from "@/components/BackHeader";
@@ -56,6 +57,7 @@ function numberOrNull(value: string): number | null {
  */
 export function MovieForm({ title, backLabel, submitLabel, movie, onSubmit }: MovieFormProps) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [movieTitle, setMovieTitle] = useState(movie?.title ?? "");
   const [director, setDirector] = useState(movie?.director ?? "");
   const [genre, setGenre] = useState(movie?.majorGenre ?? "");
@@ -124,67 +126,76 @@ export function MovieForm({ title, backLabel, submitLabel, movie, onSubmit }: Mo
           onChangeText={setMovieTitle}
           error={isSubmitted ? titleError : undefined}
         />
-        <FormField
-          label="Release date *"
-          placeholder="e.g. Jul 16 2010"
-          value={releaseDate}
-          onChangeText={setReleaseDate}
-          error={isSubmitted ? releaseDateError : undefined}
-        />
-        <FormField label="Director" placeholder="e.g. Christopher Nolan" value={director} onChangeText={setDirector} />
-        <View style={styles.genre}>
-          <Text variant="labelLarge" style={styles.genreLabel}>
-            Genre
-          </Text>
-          <Menu
-            visible={isGenreMenuOpen}
-            onDismiss={() => setIsGenreMenuOpen(false)}
-            anchor={
-              <Button mode="outlined" icon="chevron-down" onPress={() => setIsGenreMenuOpen(true)}>
-                {genre || "Select genre"}
-              </Button>
-            }
-          >
-            <Menu.Item title="No genre" onPress={() => selectGenre("")} />
-            {GENRES.map((option) => (
-              <Menu.Item key={option} title={option} onPress={() => selectGenre(option)} />
-            ))}
-          </Menu>
+        <View style={styles.row}>
+          <View style={styles.column}>
+            <FormField label="Director" placeholder="e.g. C. Nolan" value={director} onChangeText={setDirector} />
+          </View>
+          <View style={styles.column}>
+            <Menu
+              visible={isGenreMenuOpen}
+              onDismiss={() => setIsGenreMenuOpen(false)}
+              anchor={
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Genre: ${genre || "not selected"}`}
+                  onPress={() => setIsGenreMenuOpen(true)}
+                >
+                  <View pointerEvents="none">
+                    <FormField label="Genre" placeholder="e.g. Sci-Fi" value={genre} editable={false} />
+                  </View>
+                </Pressable>
+              }
+            >
+              <Menu.Item title="No genre" onPress={() => selectGenre("")} />
+              {GENRES.map((option) => (
+                <Menu.Item key={option} title={option} onPress={() => selectGenre(option)} />
+              ))}
+            </Menu>
+          </View>
         </View>
-        <FormField
-          label="Running time (min)"
-          placeholder="e.g. 148"
-          value={runningTime}
-          onChangeText={setRunningTime}
-          error={isSubmitted ? runningTimeError : undefined}
-          keyboardType="number-pad"
-        />
         <View style={styles.row}>
           <View style={styles.column}>
             <FormField
-              label="IMDb (0–10)"
-              placeholder="e.g. 8.8"
-              value={imdbRating}
-              onChangeText={setImdbRating}
-              error={isSubmitted ? imdbError : undefined}
-              keyboardType="decimal-pad"
+              label="Release date *"
+              placeholder="e.g. Jul 16 2010"
+              value={releaseDate}
+              onChangeText={setReleaseDate}
+              error={isSubmitted ? releaseDateError : undefined}
             />
           </View>
           <View style={styles.column}>
             <FormField
-              label="Rotten Tomatoes (0–100)"
-              placeholder="e.g. 87"
-              value={rottenTomatoes}
-              onChangeText={setRottenTomatoes}
-              error={isSubmitted ? rottenTomatoesError : undefined}
+              label="Running time (min)"
+              placeholder="e.g. 148"
+              value={runningTime}
+              onChangeText={setRunningTime}
+              error={isSubmitted ? runningTimeError : undefined}
               keyboardType="number-pad"
             />
           </View>
         </View>
+        <FormField
+          label="IMDb rating (0–10)"
+          placeholder="e.g. 8.8"
+          value={imdbRating}
+          onChangeText={setImdbRating}
+          error={isSubmitted ? imdbError : undefined}
+          keyboardType="decimal-pad"
+        />
+        <FormField
+          label="Rotten Tomatoes (0–100)"
+          placeholder="e.g. 87"
+          value={rottenTomatoes}
+          onChangeText={setRottenTomatoes}
+          error={isSubmitted ? rottenTomatoesError : undefined}
+          keyboardType="number-pad"
+        />
+      </ScrollView>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
         <Button mode="contained" onPress={handleSubmit} loading={isSubmitting} disabled={isSubmitting}>
           {submitLabel}
         </Button>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -197,17 +208,16 @@ const styles = StyleSheet.create({
     gap: 16,
     padding: 16,
   },
-  genre: {
-    gap: 4,
-  },
-  genreLabel: {
-    fontWeight: "600",
-  },
   row: {
     flexDirection: "row",
     gap: 12,
   },
   column: {
     flex: 1,
+  },
+  /** Stays below the scrolling fields, so the main action is always in the thumb zone. */
+  footer: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
   },
 });

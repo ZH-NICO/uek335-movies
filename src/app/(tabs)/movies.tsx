@@ -89,7 +89,7 @@ export default function Movies() {
       return () => {
         isCurrent = false;
       };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- these values only trigger a new load
+    /** reloadCount and refresh are not read inside, they only trigger a new load. */
     }, [query, filters, reloadCount, refresh]),
   );
 
@@ -195,7 +195,7 @@ export default function Movies() {
 }
 
 const styles = StyleSheet.create({
-  // Leaves room so the last card is not hidden behind the button.
+  /** Leaves room so the last card is not hidden behind the button. */
   list: {
     paddingBottom: 88,
   },

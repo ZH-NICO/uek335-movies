@@ -38,18 +38,6 @@ export async function getMovies(page: number, filters: MovieFilters = {}): Promi
 }
 
 /**
- * Loads a single movie.
- *
- * @param id - ID of the movie.
- * @returns The movie.
- * @throws ApiError if it does not exist (status 404) or the request fails.
- */
-export async function getMovie(id: number): Promise<Movie> {
-  const { data } = await api.get<Movie>(`/movies/${id}`);
-  return data;
-}
-
-/**
  * Creates a movie.
  *
  * @param movie - All fields except the id, which the backend assigns.

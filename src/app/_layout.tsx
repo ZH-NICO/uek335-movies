@@ -27,6 +27,8 @@ function RootNavigator() {
       <Stack.Protected guard={userId !== null}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="movies/[id]" />
+        <Stack.Screen name="movies/new" />
+        <Stack.Screen name="movies/edit/[id]" />
       </Stack.Protected>
       <Stack.Protected guard={userId === null}>
         <Stack.Screen name="login" />

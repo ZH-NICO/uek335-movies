@@ -1,10 +1,11 @@
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
-import { ActivityIndicator, Searchbar } from "react-native-paper";
+import { ActivityIndicator, FAB, Searchbar } from "react-native-paper";
 
 import { ApiError } from "@/api/client";
 import { getMovies, PAGE_SIZE, type MovieFilters } from "@/api/movieApi";
+import { ErrorBox } from "@/components/ErrorBox";
 import { FilterChips } from "@/components/FilterChips";
 import { MovieCard } from "@/components/MovieCard";
 import { StatusView } from "@/components/StatusView";
@@ -27,6 +28,8 @@ function errorMessage(error: unknown): string {
 export default function Movies() {
   const router = useRouter();
   const { showMessage } = useSnackbar();
+  /** Changes when a deleted movie was restored while this screen is already visible. */
+  const { refresh } = useLocalSearchParams<{ refresh?: string }>();
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<MovieFilters>({});
@@ -44,6 +47,8 @@ export default function Movies() {
     const timer = setTimeout(() => {
       const nextQuery = search.trim();
       if (nextQuery !== query) {
+        /** Old results do not belong to the new search, so they are not kept for an error case. */
+        setMovies([]);
         setIsLoading(true);
         setError(null);
         setQuery(nextQuery);
@@ -52,34 +57,41 @@ export default function Movies() {
     return () => clearTimeout(timer);
   }, [search, query]);
 
-  /** Loads the first page again whenever search or filters change or the user taps "Try again". */
-  useEffect(() => {
-    /** Ignores the answer of an older search that arrives after a newer one. */
-    let isCurrent = true;
+  /**
+   * Loads the first page when the screen comes into focus, so new, changed and deleted movies are up to date,
+   * and again whenever search or filters change or the user taps "Try again".
+   */
+  useFocusEffect(
+    useCallback(() => {
+      /** Ignores the answer of an older search that arrives after a newer one. */
+      let isCurrent = true;
 
-    getMovies(1, { ...filters, search: query })
-      .then((result) => {
-        if (isCurrent) {
-          setMovies(result);
-          setPage(1);
-          setHasMore(result.length === PAGE_SIZE);
-        }
-      })
-      .catch((loadError: unknown) => {
-        if (isCurrent) {
-          setError(errorMessage(loadError));
-        }
-      })
-      .finally(() => {
-        if (isCurrent) {
-          setIsLoading(false);
-        }
-      });
+      getMovies(1, { ...filters, search: query })
+        .then((result) => {
+          if (isCurrent) {
+            setMovies(result);
+            setPage(1);
+            setHasMore(result.length === PAGE_SIZE);
+            setError(null);
+          }
+        })
+        .catch((loadError: unknown) => {
+          if (isCurrent) {
+            setError(errorMessage(loadError));
+          }
+        })
+        .finally(() => {
+          if (isCurrent) {
+            setIsLoading(false);
+          }
+        });
 
-    return () => {
-      isCurrent = false;
-    };
-  }, [query, filters, reloadCount]);
+      return () => {
+        isCurrent = false;
+      };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- these values only trigger a new load
+    }, [query, filters, reloadCount, refresh]),
+  );
 
   /**
    * Appends the next page when the user scrolls to the end of the list.
@@ -105,6 +117,7 @@ export default function Movies() {
 
   /** Shows the loading state right away, so the old list is not shown with the new filters. */
   function changeFilters(newFilters: MovieFilters) {
+    setMovies([]);
     setIsLoading(true);
     setError(null);
     setFilters(newFilters);
@@ -132,7 +145,7 @@ export default function Movies() {
     if (isLoading) {
       return <StatusView status="loading" />;
     }
-    if (error) {
+    if (error && movies.length === 0) {
       return <StatusView status="error" message={error} onRetry={retry} />;
     }
     if (movies.length === 0) {
@@ -169,16 +182,29 @@ export default function Movies() {
     <TabScreen title="Movies" subtitle={subtitle}>
       <Searchbar placeholder="Search by title" value={search} onChangeText={setSearch} />
       <FilterChips filters={filters} onChange={changeFilters} />
+      {error && movies.length > 0 && <ErrorBox title="Could not refresh" message={error} />}
       {renderContent()}
+      <FAB
+        icon="plus"
+        label="New movie"
+        style={styles.fab}
+        onPress={() => router.push("/movies/new")}
+      />
     </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  // Leaves room so the last card is not hidden behind the button.
   list: {
-    paddingBottom: 16,
+    paddingBottom: 88,
   },
   footer: {
     marginVertical: 16,
+  },
+  fab: {
+    position: "absolute",
+    right: 0,
+    bottom: 16,
   },
 });

@@ -6,8 +6,8 @@
 |---|---|
 | Getesteter Stand (Branch, Commit) | feature/cleanup, d2fe426 |
 | Testdatum | 06.11.2026 |
-| Gerät / Emulator | iPhone 15 Pro Max |
-| Android- / iOS-Version | |
+| Gerät / Emulator | iPhone 15 Pro Max (Margarita), Android-Emulator Medium Phone API 37 (Nico) |
+| Android- / iOS-Version | Android 17 (API 37) im Emulator |
 | Expo Go Version | SDK 58.0.0 |
 | Backend | Docker-Image `noseryoung/rest-jsondb`, Port 3030 |
 
@@ -47,28 +47,28 @@ Pro Feature gibt es mindestens einen Happy Path. Die Fehler- und Randfälle deck
 
 | TestCaseId | Component | Priority | Description | Pre-requisites | Test Steps | Expected Result | Actual Result | Status | Executed By |
 |---|---|---|---|---|---|---|---|---|---|
-| L-01 | Liste | Hoch | Filme anzeigen (Happy Path) | Eingeloggt | 1. Tab „Movies“ öffnen | Spinner, danach Karten mit Poster, Titel, Jahr, Genre und Rating | | | |
-| L-03 | Suche | Hoch | Suche nach Titel (Happy Path) | Liste offen | 1. `in` eingeben | Nach kurzer Pause nur passende Filme; Untertitel zeigt z.B. „N results for «in»“ | | | |
-| L-04 | Suche | Hoch | Keine Treffer | Liste offen | 1. `xyzxyz` eingeben | Meldung „No movies match your search. Try another title or remove a filter.“ | | | |
-| L-05 | Filter | Hoch | Genre, Jahr und IMDb filtern | Liste offen | 1. Genre wählen<br>2. Jahrzehnt wählen<br>3. IMDb-Wert wählen | Liste zeigt nur Filme, die allen Filtern entsprechen | | | |
-| L-07 | Liste | Hoch | Backend aus beim Laden | Eingeloggt, Liste offen | 1. `docker stop restdb`<br>2. Suchbegriff eingeben<br>3. `docker start restdb`<br>4. „Try again“ tippen | 2. Nach höchstens ca. 10 s „No connection to the server. Check your connection and try again.“<br>4. Liste erscheint | | | |
+| L-01 | Liste | Hoch | Filme anzeigen (Happy Path) | Eingeloggt | 1. Tab „Movies“ öffnen | Spinner, danach Karten mit Poster, Titel, Jahr, Genre und Rating | Karten mit Poster, Titel, Jahr, Genre und Rating erscheinen, nach Titel sortiert. Der Spinner ist nur sehr kurz sichtbar. (Android-Emulator, API 37) | Bestanden | Nico |
+| L-03 | Suche | Hoch | Suche nach Titel (Happy Path) | Liste offen | 1. `in` eingeben | Nach kurzer Pause nur passende Filme; Untertitel zeigt z.B. „N results for «in»“ | Nach kurzer Pause nur Inception, The Lion King, The Shining und The Terminator; Untertitel „4 results for «in»“. Gleich wie die Abfrage direkt im Backend. (Android-Emulator, API 37) | Bestanden | Nico |
+| L-04 | Suche | Hoch | Keine Treffer | Liste offen | 1. `xyzxyz` eingeben | Meldung „No movies match your search. Try another title or remove a filter.“ | Untertitel „0 results for «xyzxyz»“ und Meldung „No movies match your search. Try another title or remove a filter.“ (Android-Emulator, API 37) | Bestanden | Nico |
+| L-05 | Filter | Hoch | Genre, Jahr und IMDb filtern | Liste offen | 1. Genre wählen<br>2. Jahrzehnt wählen<br>3. IMDb-Wert wählen | Liste zeigt nur Filme, die allen Filtern entsprechen | Sci-Fi: 6 Filme; dazu 1980s: 2 Filme; dazu IMDb ≥ 8: Back to the Future und The Terminator. Gleich wie im Backend. Filter lassen sich mit „x“ entfernen. (Android-Emulator, API 37) | Bestanden | Nico |
+| L-07 | Liste | Hoch | Backend aus beim Laden | Eingeloggt, Liste offen | 1. `docker stop restdb`<br>2. Suchbegriff eingeben<br>3. `docker start restdb`<br>4. „Try again“ tippen | 2. Nach höchstens ca. 10 s „No connection to the server. Check your connection and try again.“<br>4. Liste erscheint | Ohne Backend erscheint „No connection to the server. Check your connection and try again.“ mit „Try again“. Nach dem Neustart des Backends und „Try again“ erscheint Alien. (Android-Emulator, API 37) | Bestanden | Nico |
 
 ## Details
 
 | TestCaseId | Component | Priority | Description | Pre-requisites | Test Steps | Expected Result | Actual Result | Status | Executed By |
 |---|---|---|---|---|---|---|---|---|---|
-| D-01 | Details | Hoch | Details anzeigen (Happy Path) | Liste offen | 1. Film mit Poster antippen, z.B. Inception | Poster, Titel, Rating und alle Angaben werden angezeigt | | | |
+| D-01 | Details | Hoch | Details anzeigen (Happy Path) | Liste offen | 1. Film mit Poster antippen, z.B. Inception | Poster, Titel, Rating und alle Angaben werden angezeigt | Poster, Inception, 8.8 / 10 IMDb, Christopher Nolan, Sci-Fi, Jul 16 2010, 148 min, 87 % werden angezeigt. (Android-Emulator, API 37) | Bestanden | Nico |
 
 ## Film erstellen, bearbeiten, löschen
 
 | TestCaseId | Component | Priority | Description | Pre-requisites | Test Steps | Expected Result | Actual Result | Status | Executed By |
 |---|---|---|---|---|---|---|---|---|---|
-| F-01 | Neu | Hoch | Film erstellen (Happy Path) | Liste offen | 1. „New movie“ tippen<br>2. Titel `Test A` und Datum `Jul 16 2010` eingeben<br>3. „Save movie“ tippen | Meldung „«Test A» saved.“, Film erscheint in der Liste | | | |
-| F-02 | Neu | Hoch | Pflichtfelder leer | Formular offen | 1. Alles leer lassen<br>2. „Save movie“ tippen | „Enter a title.“ und „Enter a real date like Sep 03 2009.“; nichts gespeichert | | | |
-| F-03 | Validierung | Hoch | Ungültige Werte | Formular offen, Pflichtfelder gültig | 1. IMDb `11` eingeben<br>2. Rotten Tomatoes `101` eingeben<br>3. Laufzeit `abc` eingeben<br>4. Speichern | Passender Fehlertext unter jedem Feld; nichts gespeichert | | | |
-| F-08 | Bearbeiten | Hoch | Film bearbeiten (Happy Path) | Film mit Poster, Details offen | 1. „Edit movie“ tippen<br>2. Felder sind vorausgefüllt<br>3. Titel ändern<br>4. „Save changes“ tippen | Details zeigen den neuen Titel, das Poster bleibt erhalten; die Liste ist aktuell | | | |
-| F-10 | Löschen | Hoch | Film löschen (Happy Path) | Film aus F-01, Details offen | 1. Papierkorb tippen<br>2. Im Dialog „Delete“ tippen | Liste erscheint ohne den Film, Snackbar zeigt „Undo“ | | | |
-| F-12 | Löschen | Hoch | Löschen rückgängig machen | Film wie in F-10 gelöscht, Snackbar sichtbar | 1. „Undo“ tippen | Film ist wieder in der Liste, alle Angaben sind erhalten | | | |
+| F-01 | Neu | Hoch | Film erstellen (Happy Path) | Liste offen | 1. „New movie“ tippen<br>2. Titel `Test A` und Datum `Jul 16 2010` eingeben<br>3. „Save movie“ tippen | Meldung „«Test A» saved.“, Film erscheint in der Liste | Snackbar „«Test A» saved.“, die Liste erscheint wieder. Film ist im Backend gespeichert (leere Felder als null). (Android-Emulator, API 37) | Bestanden | Nico |
+| F-02 | Neu | Hoch | Pflichtfelder leer | Formular offen | 1. Alles leer lassen<br>2. „Save movie“ tippen | „Enter a title.“ und „Enter a real date like Sep 03 2009.“; nichts gespeichert | „Enter a title.“ und „Enter a real date like Sep 03 2009.“ erscheinen, Anzahl Filme im Backend bleibt 31. (Android-Emulator, API 37) | Bestanden | Nico |
+| F-03 | Validierung | Hoch | Ungültige Werte | Formular offen, Pflichtfelder gültig | 1. IMDb `11` eingeben<br>2. Rotten Tomatoes `101` eingeben<br>3. Laufzeit `abc` eingeben<br>4. Speichern | Passender Fehlertext unter jedem Feld; nichts gespeichert | „Enter the running time in whole minutes.“, „Enter a number from 0 to 10.“ und „Enter a number from 0 to 100.“ erscheinen, nichts gespeichert. (Android-Emulator, API 37) | Bestanden | Nico |
+| F-08 | Bearbeiten | Hoch | Film bearbeiten (Happy Path) | Film mit Poster, Details offen | 1. „Edit movie“ tippen<br>2. Felder sind vorausgefüllt<br>3. Titel ändern<br>4. „Save changes“ tippen | Details zeigen den neuen Titel, das Poster bleibt erhalten; die Liste ist aktuell | Noch nicht ausgeführt. | Nicht ausgeführt | Nico |
+| F-10 | Löschen | Hoch | Film löschen (Happy Path) | Film aus F-01, Details offen | 1. Papierkorb tippen<br>2. Im Dialog „Delete“ tippen | Liste erscheint ohne den Film, Snackbar zeigt „Undo“ | Noch nicht ausgeführt. | Nicht ausgeführt | Nico |
+| F-12 | Löschen | Hoch | Löschen rückgängig machen | Film wie in F-10 gelöscht, Snackbar sichtbar | 1. „Undo“ tippen | Film ist wieder in der Liste, alle Angaben sind erhalten | Noch nicht ausgeführt. | Nicht ausgeführt | Nico |
 
 ## Gefundene Fehler und Nachtests
 
@@ -80,4 +80,4 @@ Pro Feature gibt es mindestens einen Happy Path. Die Fehler- und Randfälle deck
 
 | Total | Bestanden | Fehlgeschlagen | Nicht ausgeführt |
 |---|---|---|---|
-| 21 | | | |
+| 21 | 18 | 0 | 3 |

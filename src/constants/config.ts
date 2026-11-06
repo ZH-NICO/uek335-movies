@@ -1,9 +1,11 @@
-import { Platform } from "react-native";
+import Constants from "expo-constants";
 
-// Base URL of the rest-jsondb backend.
-// In the Android emulator 10.0.2.2 points to the host machine, "localhost" would be the emulator itself.
-// On a real phone this has to be the IP address of the computer in the local network.
-export const API_URL = Platform.select({
-  android: "http://10.0.2.2:3030",
-  default: "http://localhost:3030",
-});
+/**
+ * IP of the computer that runs "npx expo start".
+ * The backend runs on the same computer, so the app reaches it from the emulator
+ * and from a real phone in the same network without changing the code.
+ */
+const host = Constants.expoConfig?.hostUri?.split(":")[0] ?? "localhost";
+
+/** Base URL of the rest-jsondb backend. */
+export const API_URL = `http://${host}:3030`;

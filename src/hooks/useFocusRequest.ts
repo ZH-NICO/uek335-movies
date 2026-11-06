@@ -1,11 +1,16 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 
-import { ApiError, request } from "@/api/client";
+import { api, ApiError } from "@/api/client";
 
-// Loads data each time the screen is opened.
-// Tabs stay mounted, so loading only once would show outdated data after a change on another tab.
-// Already loaded data stays visible while reloading and if reloading fails.
+/**
+ * Loads data with a GET request each time the screen is opened.
+ * Tabs stay mounted, so loading only once would show outdated data after a change on another tab.
+ * Already loaded data stays visible while reloading and if reloading fails.
+ *
+ * @param path - Path of the backend, e.g. "/users/1".
+ * @returns The loaded data (null until loaded), the error message of the last attempt and retry() to load again.
+ */
 export function useFocusRequest<T>(path: string) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +18,8 @@ export function useFocusRequest<T>(path: string) {
   const load = useCallback(async () => {
     setError(null);
     try {
-      setData(await request<T>(path));
+      const response = await api.get<T>(path);
+      setData(response.data);
     } catch (loadError) {
       setError(loadError instanceof ApiError ? loadError.message : "Something went wrong. Please try again.");
     }
@@ -25,5 +31,5 @@ export function useFocusRequest<T>(path: string) {
     }, [load]),
   );
 
-  return { data, error, isLoading: data === null && error === null, retry: load };
+  return { data, error, retry: load };
 }

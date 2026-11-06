@@ -10,9 +10,13 @@ import { ScreenTitle } from "@/components/ScreenTitle";
 import { StatusView } from "@/components/StatusView";
 import type { Movie } from "@/types/movie";
 
-// Fallback for values that are missing in the backend.
+/** Fallback for values that are missing in the backend. */
 const NO_VALUE = "–";
 
+/**
+ * @param error - Error of the request, or null if the movie is missing.
+ * @returns Message for the user, with a hint if the movie was deleted.
+ */
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError && error.status === 404) {
     return "This movie does not exist anymore. Go back to the list.";
@@ -20,12 +24,13 @@ function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : "The movie could not be loaded. Please try again.";
 }
 
+/** Label and value of one line in the detail card. */
 interface DetailRowProps {
   label: string;
   value: string;
 }
 
-// One line in the detail card: label on the left, value on the right.
+/** One line in the detail card: label on the left, value on the right. */
 function DetailRow({ label, value }: DetailRowProps) {
   const theme = useTheme();
 
@@ -41,6 +46,7 @@ function DetailRow({ label, value }: DetailRowProps) {
   );
 }
 
+/** Detail screen of one movie, opened from the list. */
 export default function MovieDetails() {
   const router = useRouter();
   const theme = useTheme();
@@ -50,7 +56,7 @@ export default function MovieDetails() {
   const [error, setError] = useState<string | null>(null);
   const [reloadCount, setReloadCount] = useState(0);
 
-  // Loads the movie when the screen opens and again when the user taps "Try again".
+  /** Loads the movie when the screen opens and again when the user taps "Try again". */
   useEffect(() => {
     let isCurrent = true;
 
@@ -76,12 +82,14 @@ export default function MovieDetails() {
     };
   }, [id, reloadCount]);
 
+  /** Loads the movie again after an error. */
   function retry() {
     setIsLoading(true);
     setError(null);
     setReloadCount((count) => count + 1);
   }
 
+  /** Shows the movie, or the loading or error state. */
   function renderContent() {
     if (isLoading) {
       return <StatusView status="loading" />;

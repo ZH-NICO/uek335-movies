@@ -1,7 +1,9 @@
 import { MD3LightTheme, type MD3Theme } from "react-native-paper";
 
-// App theme based on the Figma mockup.
-// All colors are defined here only, so components never contain hex values.
+/**
+ * App theme based on the Figma mockup.
+ * All colors are defined here only, so components never contain hex values.
+ */
 export const theme: MD3Theme = {
   ...MD3LightTheme,
   roundness: 2,

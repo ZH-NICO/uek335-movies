@@ -6,7 +6,7 @@ interface ErrorBoxProps {
   message: string;
 }
 
-// Red box for errors that do not belong to a single field, e.g. wrong credentials.
+/** Red box for errors that do not belong to a single field, e.g. wrong credentials. */
 export function ErrorBox({ title, message }: ErrorBoxProps) {
   const theme = useTheme();
 
@@ -17,10 +17,10 @@ export function ErrorBox({ title, message }: ErrorBoxProps) {
     >
       <Icon source="alert-circle-outline" size={18} color={theme.colors.error} />
       <View style={styles.text}>
-        <Text variant="labelLarge" style={{ color: theme.colors.onErrorContainer }}>
+        <Text variant="labelLarge" style={styles.title}>
           {title}
         </Text>
-        <Text variant="bodySmall" style={{ color: theme.colors.onErrorContainer }}>
+        <Text variant="bodySmall">
           {message}
         </Text>
       </View>
@@ -38,5 +38,8 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
+  },
+  title: {
+    fontWeight: "700",
   },
 });

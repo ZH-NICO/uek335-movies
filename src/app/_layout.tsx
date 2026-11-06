@@ -7,8 +7,10 @@ import { theme } from "@/constants/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 
-// Shows login or tabs depending on the session. Protected screens are removed from the stack,
-// so login, logout and an expired token all switch screens here and leave no way back.
+/**
+ * Shows login or tabs depending on the session. Protected screens are removed from the stack,
+ * so login, logout and an expired token all switch screens here and leave no way back.
+ */
 function RootNavigator() {
   const { userId, isRestoring } = useAuth();
 
@@ -34,6 +36,7 @@ function RootNavigator() {
   );
 }
 
+/** Root of the app: provides theme, login state and snackbar to every screen. */
 export default function RootLayout() {
   return (
     <PaperProvider theme={theme}>

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { Portal, Snackbar } from "react-native-paper";
 
-// Optional action in the snackbar, e.g. "Undo".
+/** Optional action in the snackbar, e.g. "Undo". */
 export interface SnackbarAction {
   label: string;
   onPress: () => void;
@@ -18,11 +18,19 @@ interface SnackbarState {
 
 const SnackbarContext = createContext<SnackbarContextValue | null>(null);
 
-// Provides one snackbar for the whole app,
-// so feedback looks the same everywhere and no screen needs its own state for it.
+/**
+ * Provides one snackbar for the whole app,
+ * so feedback looks the same everywhere and no screen needs its own state for it.
+ *
+ * @param props.children - The app, which gets access to useSnackbar().
+ */
 export function SnackbarProvider({ children }: { children: ReactNode }) {
   const [snackbar, setSnackbar] = useState<SnackbarState | null>(null);
 
+  /**
+   * @param message - Short text at the bottom of the screen.
+   * @param action - Optional button in the snackbar, e.g. "Undo".
+   */
   function showMessage(message: string, action?: SnackbarAction) {
     setSnackbar({ message, action });
   }
@@ -39,8 +47,12 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Access to the snackbar: showMessage(message, action?).
-// Throws if used outside of SnackbarProvider.
+/**
+ * Access to the snackbar.
+ *
+ * @returns showMessage(message, action?).
+ * @throws Error if used outside of SnackbarProvider.
+ */
 export function useSnackbar(): SnackbarContextValue {
   const context = useContext(SnackbarContext);
   if (!context) {

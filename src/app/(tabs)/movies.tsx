@@ -12,13 +12,18 @@ import { TabScreen } from "@/components/TabScreen";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { Movie } from "@/types/movie";
 
-// Time to wait after the last key press, so not every letter sends a request.
+/** Time to wait after the last key press, so not every letter sends a request. */
 const SEARCH_DELAY_MS = 400;
 
+/**
+ * @param error - Error of a request.
+ * @returns Message for the user.
+ */
 function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : "Movies could not be loaded. Please try again.";
 }
 
+/** Movies tab: list of all movies with search, filters and loading more pages while scrolling. */
 export default function Movies() {
   const router = useRouter();
   const { showMessage } = useSnackbar();
@@ -47,9 +52,9 @@ export default function Movies() {
     return () => clearTimeout(timer);
   }, [search, query]);
 
-  // Loads the first page again whenever search or filters change or the user taps "Try again".
+  /** Loads the first page again whenever search or filters change or the user taps "Try again". */
   useEffect(() => {
-    // Ignores the answer of an older search that arrives after a newer one.
+    /** Ignores the answer of an older search that arrives after a newer one. */
     let isCurrent = true;
 
     getMovies(1, { ...filters, search: query })
@@ -76,8 +81,10 @@ export default function Movies() {
     };
   }, [query, filters, reloadCount]);
 
-  // Appends the next page when the user scrolls to the end of the list.
-  // On an error the loaded movies stay visible and a snackbar explains what happened.
+  /**
+   * Appends the next page when the user scrolls to the end of the list.
+   * On an error the loaded movies stay visible and a snackbar explains what happened.
+   */
   async function loadNextPage() {
     if (isLoading || isLoadingMore || !hasMore) {
       return;
@@ -96,19 +103,21 @@ export default function Movies() {
     }
   }
 
+  /** Shows the loading state right away, so the old list is not shown with the new filters. */
   function changeFilters(newFilters: MovieFilters) {
     setIsLoading(true);
     setError(null);
     setFilters(newFilters);
   }
 
+  /** Loads the first page again after an error. */
   function retry() {
     setIsLoading(true);
     setError(null);
     setReloadCount((count) => count + 1);
   }
 
-  // The exact number of results is only known once the last page is loaded.
+  /** The exact number of results is only known once the last page is loaded. */
   let subtitle = "All movies from MovieCruxStudios";
   if (query || hasFilters) {
     const searchText = query ? ` for «${query}»` : "";
@@ -118,6 +127,7 @@ export default function Movies() {
         : `Results${searchText}`;
   }
 
+  /** Shows the list, or the loading, error or empty state. */
   function renderContent() {
     if (isLoading) {
       return <StatusView status="loading" />;

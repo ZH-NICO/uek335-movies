@@ -11,19 +11,23 @@ import { setUnauthorizedHandler } from "@/api/client";
 import { clearSession, loadSession, saveSession } from "@/storage/session";
 
 interface AuthContextValue {
-  // ID of the logged-in user, or null if nobody is logged in.
+  /** ID of the logged-in user, or null if nobody is logged in. */
   userId: number | null;
-  // True while the stored session is being loaded on app start.
+  /** True while the stored session is being loaded on app start. */
   isRestoring: boolean;
   login: (credentials: Credentials) => Promise<void>;
-  register: (data: RegistrationData) => Promise<void>;
+  register: (registration: RegistrationData) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// Provides login, registration and logout for the whole app
-// and restores a stored session on app start.
+/**
+ * Provides login, registration and logout for the whole app
+ * and restores a stored session on app start.
+ *
+ * @param props.children - The app, which gets access to useAuth().
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState<number | null>(null);
   const [isRestoring, setIsRestoring] = useState(true);
@@ -33,27 +37,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     loadSession()
       .then((session) => setUserId(session?.userId ?? null))
-      // If the storage cannot be read, the app starts logged out instead of crashing.
+      /** If the storage cannot be read, the app starts logged out instead of crashing. */
       .catch(() => setUserId(null))
       .finally(() => setIsRestoring(false));
   }, []);
 
+  /** Deletes the stored session. The root layout then shows the login screen. */
   async function logout() {
     await clearSession();
     setUserId(null);
   }
 
+  /**
+   * Stores token and user ID after a successful login or sign up.
+   *
+   * @param response - Answer of the backend.
+   */
   async function startSession(response: AuthResponse) {
     await saveSession({ accessToken: response.accessToken, userId: response.user.id });
     setUserId(response.user.id);
   }
 
+  /**
+   * @param credentials - Email and password.
+   * @throws ApiError if the credentials are wrong or the server cannot be reached.
+   */
   async function login(credentials: Credentials) {
     await startSession(await loginUser(credentials));
   }
 
-  async function register(data: RegistrationData) {
-    await startSession(await registerUser(data));
+  /**
+   * @param registration - Data of the new account.
+   * @throws ApiError if the email is taken or the server cannot be reached.
+   */
+  async function register(registration: RegistrationData) {
+    await startSession(await registerUser(registration));
   }
 
   return (
@@ -63,8 +81,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Access to the login state and the auth functions.
-// Throws if used outside of AuthProvider.
+/**
+ * Access to the login state and the auth functions.
+ *
+ * @returns userId, isRestoring, login, register and logout.
+ * @throws Error if used outside of AuthProvider.
+ */
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (!context) {

@@ -8,20 +8,22 @@ import { ScreenTitle } from "@/components/ScreenTitle";
 interface AuthScreenProps {
   title: string;
   subtitle: string;
-  // Content above the title, e.g. the app logo or a back button.
+  /** Content above the title, e.g. the app logo or a back button. */
   header: ReactNode;
   submitLabel: string;
   isSubmitting: boolean;
   onSubmit: () => void;
-  // Text and link below the button that lead to the other auth screen.
+  /** Text and link below the button that lead to the other auth screen. */
   switchText: string;
   switchLabel: string;
   onSwitch: () => void;
   children: ReactNode;
 }
 
-// Shared layout of login and sign up. The main action stays at the bottom in the thumb zone,
-// and the content scrolls so all fields stay reachable with an open keyboard.
+/**
+ * Shared layout of login and sign up. The main action stays at the bottom in the thumb zone,
+ * and the content scrolls so all fields stay reachable with an open keyboard.
+ */
 export function AuthScreen({
   title,
   subtitle,
@@ -52,6 +54,7 @@ export function AuthScreen({
               disabled={isSubmitting}
               onPress={onSubmit}
               contentStyle={styles.submit}
+              labelStyle={styles.bold}
             >
               {submitLabel}
             </Button>
@@ -59,7 +62,7 @@ export function AuthScreen({
               <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
                 {switchText}
               </Text>
-              <Button mode="text" compact disabled={isSubmitting} onPress={onSwitch}>
+              <Button mode="text" compact disabled={isSubmitting} labelStyle={styles.bold} onPress={onSwitch}>
                 {switchLabel}
               </Button>
             </View>
@@ -91,6 +94,9 @@ const styles = StyleSheet.create({
   },
   submit: {
     height: 48,
+  },
+  bold: {
+    fontWeight: "700",
   },
   switchRow: {
     flexDirection: "row",

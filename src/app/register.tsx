@@ -17,6 +17,7 @@ import {
   validateNewPassword,
 } from "@/utils/validation";
 
+/** Sign up screen. All fields are checked before the account is created. */
 export default function Register() {
   const { register } = useAuth();
   const [email, setEmail] = useState("");
@@ -24,7 +25,7 @@ export default function Register() {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [age, setAge] = useState("");
-  // Errors only appear after the first submit, so an empty form is not shown as wrong.
+  /** Errors only appear after the first submit, so an empty form is not shown as wrong. */
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
@@ -35,6 +36,7 @@ export default function Register() {
   const lastnameError = validateLastname(lastname);
   const ageError = validateAge(age);
 
+  /** Checks all fields first and only sends the request if they are valid. */
   async function handleRegister() {
     setIsSubmitted(true);
     setFailure(null);
@@ -44,7 +46,7 @@ export default function Register() {
 
     setIsSubmitting(true);
     try {
-      // After the sign up, the root layout switches to the tabs.
+      /** After the sign up, the root layout switches to the tabs. */
       await register({
         email: email.trim(),
         password,

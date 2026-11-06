@@ -3,7 +3,11 @@ import { TextInput } from "react-native-paper";
 
 import { FormField, type FormFieldProps } from "@/components/FormField";
 
-// Password field with an eye icon to show or hide the entry.
+/**
+ * Password field with an eye icon to show or hide the entry.
+ *
+ * @param props - Same as FormField, the field is always hidden and has the eye icon on the right.
+ */
 export function PasswordField(props: Omit<FormFieldProps, "secureTextEntry" | "right">) {
   const [isVisible, setIsVisible] = useState(false);
 

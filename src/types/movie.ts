@@ -1,7 +1,21 @@
-// Movie as returned by the backend. The rating is optional because not every movie has one.
+
 export interface Movie {
   id: number;
   title: string;
-  majorGenre?: string;
+
+  releaseDate: string;
+  majorGenre?: string | null;
+  director?: string | null;
+  distributor?: string | null;
+  mpaaRating?: string | null;
+  runningTimeMin?: number | null;
   imdbRating?: number | null;
+  imdbVotes?: number | null;
+  rottenTomatoesRating?: number | null;
+  usGross?: number | null;
+  worldwideGross?: number | null;
+  productionBudget?: number | null;
+  posterUrl?: string | null;
 }
+
+export type NewMovie = Omit<Movie, "id">;

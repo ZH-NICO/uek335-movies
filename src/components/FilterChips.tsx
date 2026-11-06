@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { Chip, Menu } from "react-native-paper";
 
 import type { MovieFilters } from "@/api/movieApi";
+import { GENRES } from "@/constants/genres";
 
 /** One entry in a filter menu: text for the user and value for the backend. */
 interface FilterOption {
@@ -10,17 +11,8 @@ interface FilterOption {
   value: string;
 }
 
-/** Genres that exist in the backend. The value is sent as majorGenre. */
-const GENRE_OPTIONS: FilterOption[] = [
-  "Action",
-  "Animation",
-  "Comedy",
-  "Drama",
-  "Horror",
-  "Romance",
-  "Sci-Fi",
-  "Thriller",
-].map((genre) => ({ label: genre, value: genre }));
+/** The value is sent as majorGenre. */
+const GENRE_OPTIONS: FilterOption[] = GENRES.map((genre) => ({ label: genre, value: genre }));
 
 /** The value is the start of the year, e.g. "199" matches every year from 1990 to 1999. */
 const DECADE_OPTIONS: FilterOption[] = ["197", "198", "199", "200", "201", "202"].map((start) => ({

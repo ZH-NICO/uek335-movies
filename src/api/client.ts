@@ -58,6 +58,10 @@ function toApiError(error: unknown): ApiError {
     return new ApiError("Your session has expired. Please log in again.", status);
   }
 
+  if (status === 404) {
+    return new ApiError("This entry does not exist anymore. Go back to the list.", status);
+  }
+
   /** json-server-auth returns errors as a JSON string, e.g. "Incorrect password". */
   const serverMessage = typeof data === "string" ? data : undefined;
   return new ApiError("Something went wrong. Please try again.", status, serverMessage);

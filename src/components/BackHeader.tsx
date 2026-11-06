@@ -3,13 +3,13 @@ import type { ReactNode } from "react";
 import { Appbar, useTheme } from "react-native-paper";
 
 interface BackHeaderProps {
-  // Name of the screen the back button returns to.
+  /** Name of the screen the back button returns to. */
   label: string;
-  // Optional actions on the right side.
+  /** Optional actions on the right side. */
   children?: ReactNode;
 }
 
-// Top bar of screens that are opened from another screen.
+/** Top bar of screens that are opened from another screen. */
 export function BackHeader({ label, children }: BackHeaderProps) {
   const router = useRouter();
   const theme = useTheme();

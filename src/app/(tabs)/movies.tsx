@@ -5,6 +5,7 @@ import { ActivityIndicator, FAB, Searchbar } from "react-native-paper";
 
 import { ApiError } from "@/api/client";
 import { getMovies, PAGE_SIZE, type MovieFilters } from "@/api/movieApi";
+import { ErrorBox } from "@/components/ErrorBox";
 import { FilterChips } from "@/components/FilterChips";
 import { MovieCard } from "@/components/MovieCard";
 import { StatusView } from "@/components/StatusView";
@@ -46,6 +47,8 @@ export default function Movies() {
     const timer = setTimeout(() => {
       const nextQuery = search.trim();
       if (nextQuery !== query) {
+        /** Old results do not belong to the new search, so they are not kept for an error case. */
+        setMovies([]);
         setIsLoading(true);
         setError(null);
         setQuery(nextQuery);
@@ -114,6 +117,7 @@ export default function Movies() {
 
   /** Shows the loading state right away, so the old list is not shown with the new filters. */
   function changeFilters(newFilters: MovieFilters) {
+    setMovies([]);
     setIsLoading(true);
     setError(null);
     setFilters(newFilters);
@@ -141,7 +145,7 @@ export default function Movies() {
     if (isLoading) {
       return <StatusView status="loading" />;
     }
-    if (error) {
+    if (error && movies.length === 0) {
       return <StatusView status="error" message={error} onRetry={retry} />;
     }
     if (movies.length === 0) {
@@ -178,6 +182,7 @@ export default function Movies() {
     <TabScreen title="Movies" subtitle={subtitle}>
       <Searchbar placeholder="Search by title" value={search} onChangeText={setSearch} />
       <FilterChips filters={filters} onChange={changeFilters} />
+      {error && movies.length > 0 && <ErrorBox title="Could not refresh" message={error} />}
       {renderContent()}
       <FAB
         icon="plus"

@@ -7,17 +7,19 @@ import { BackHeader } from "@/components/BackHeader";
 import { MovieForm, type MovieFormValues } from "@/components/MovieForm";
 import { StatusView } from "@/components/StatusView";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { useMovie } from "@/hooks/useMovie";
+import { useFocusRequest } from "@/hooks/useFocusRequest";
+import type { Movie } from "@/types/movie";
 
+/** Screen for changing a movie, opened from its details. */
 export default function EditMovie() {
   const router = useRouter();
   const theme = useTheme();
   const { showMessage } = useSnackbar();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { movie, isLoading, error, retry } = useMovie(Number(id));
+  const { data: movie, error, retry } = useFocusRequest<Movie>(`/movies/${id}`);
 
-  if (movie && !isLoading) {
-    // PUT replaces the whole movie, so fields that are not in the form (e.g. the poster) are sent along.
+  if (movie) {
+    /** PUT replaces the whole movie, so fields that are not in the form (e.g. the poster) are sent along. */
     const handleSubmit = async (values: MovieFormValues) => {
       await updateMovie({ ...movie, ...values });
       showMessage("Changes saved.");

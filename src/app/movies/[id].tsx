@@ -7,11 +7,12 @@ import { ApiError } from "@/api/client";
 import { createMovie, deleteMovie } from "@/api/movieApi";
 import { BackHeader } from "@/components/BackHeader";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ErrorBox } from "@/components/ErrorBox";
 import { Poster } from "@/components/Poster";
 import { ScreenTitle } from "@/components/ScreenTitle";
 import { StatusView } from "@/components/StatusView";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { useMovie } from "@/hooks/useMovie";
+import { useFocusRequest } from "@/hooks/useFocusRequest";
 import type { Movie } from "@/types/movie";
 
 /** Fallback for values that are missing in the backend. */
@@ -45,7 +46,7 @@ export default function MovieDetails() {
   const theme = useTheme();
   const { showMessage } = useSnackbar();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { movie, isLoading, error, retry } = useMovie(Number(id));
+  const { data: movie, error, retry } = useFocusRequest<Movie>(`/movies/${id}`);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -87,17 +88,8 @@ export default function MovieDetails() {
 
   /** Shows the movie, or the loading or error state. */
   function renderContent() {
-    if (isLoading) {
-      return <StatusView status="loading" />;
-    }
     if (!movie) {
-      return (
-        <StatusView
-          status="error"
-          message={error ?? "The movie could not be loaded. Please try again."}
-          onRetry={retry}
-        />
-      );
+      return error ? <StatusView status="error" message={error} onRetry={retry} /> : <StatusView status="loading" />;
     }
 
     const rating = movie.imdbRating != null ? `★ ${movie.imdbRating} / 10 IMDb` : "No IMDb rating";
@@ -114,6 +106,7 @@ export default function MovieDetails() {
 
     return (
       <ScrollView contentContainerStyle={styles.content}>
+        {error && <ErrorBox title="Could not refresh" message={error} />}
         <Poster url={movie.posterUrl} iconSize={48} style={styles.poster} />
         <ScreenTitle title={movie.title} subtitle={rating} />
         <Card mode="outlined">

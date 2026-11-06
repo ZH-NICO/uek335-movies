@@ -1,21 +1,23 @@
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
-import { Button, useTheme } from "react-native-paper";
+import { Button, Menu, Text, useTheme } from "react-native-paper";
 
 import { ApiError } from "@/api/client";
 import { BackHeader } from "@/components/BackHeader";
 import { ErrorBox } from "@/components/ErrorBox";
 import { FormField } from "@/components/FormField";
 import { ScreenTitle } from "@/components/ScreenTitle";
+import { GENRES } from "@/constants/genres";
 import type { Movie } from "@/types/movie";
 import {
+  parseNumber,
   validateNumberInRange,
   validateReleaseDate,
   validateRunningTime,
   validateTitle,
 } from "@/utils/movieValidation";
 
-// The fields that can be changed in the form.
+/** The fields that can be changed in the form. */
 export type MovieFormValues = Pick<
   Movie,
   "title" | "releaseDate" | "director" | "majorGenre" | "runningTimeMin" | "imdbRating" | "rottenTomatoesRating"
@@ -25,21 +27,33 @@ interface MovieFormProps {
   title: string;
   backLabel: string;
   submitLabel: string;
-  // Movie to edit. Without it the form starts empty.
+  /** Movie to edit. Without it the form starts empty. */
   movie?: Movie;
   onSubmit: (values: MovieFormValues) => Promise<void>;
 }
 
-// Empty optional text fields are stored as null, like missing values in the backend.
+/**
+ * Empty optional fields are stored as null, like missing values in the backend.
+ *
+ * @param value - Text of the field.
+ * @returns The trimmed text, or null if the field is empty.
+ */
 function textOrNull(value: string): string | null {
   return value.trim() || null;
 }
 
+/**
+ * @param value - Text of a validated number field.
+ * @returns The number, or null if the field is empty.
+ */
 function numberOrNull(value: string): number | null {
-  return value.trim() ? Number(value) : null;
+  return value.trim() ? parseNumber(value) : null;
 }
 
-// Form for a new or an existing movie. Validates all fields before onSubmit is called.
+/**
+ * Form for a new or an existing movie. Validates all fields before onSubmit is called.
+ * If saving fails, the entries stay in the form and an error box explains what happened.
+ */
 export function MovieForm({ title, backLabel, submitLabel, movie, onSubmit }: MovieFormProps) {
   const theme = useTheme();
   const [movieTitle, setMovieTitle] = useState(movie?.title ?? "");
@@ -49,7 +63,8 @@ export function MovieForm({ title, backLabel, submitLabel, movie, onSubmit }: Mo
   const [runningTime, setRunningTime] = useState(movie?.runningTimeMin?.toString() ?? "");
   const [imdbRating, setImdbRating] = useState(movie?.imdbRating?.toString() ?? "");
   const [rottenTomatoes, setRottenTomatoes] = useState(movie?.rottenTomatoesRating?.toString() ?? "");
-  // Errors only appear after the first submit, so an empty form is not shown as wrong.
+  const [isGenreMenuOpen, setIsGenreMenuOpen] = useState(false);
+  /** Errors only appear after the first submit, so an empty form is not shown as wrong. */
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
@@ -60,6 +75,15 @@ export function MovieForm({ title, backLabel, submitLabel, movie, onSubmit }: Mo
   const imdbError = validateNumberInRange(imdbRating, 0, 10);
   const rottenTomatoesError = validateNumberInRange(rottenTomatoes, 0, 100);
 
+  /**
+   * @param newGenre - Selected genre, empty for no genre.
+   */
+  function selectGenre(newGenre: string) {
+    setGenre(newGenre);
+    setIsGenreMenuOpen(false);
+  }
+
+  /** Shows the errors if an entry is invalid, otherwise saves the movie. */
   async function handleSubmit() {
     setIsSubmitted(true);
     setFailure(null);
@@ -79,7 +103,6 @@ export function MovieForm({ title, backLabel, submitLabel, movie, onSubmit }: Mo
         rottenTomatoesRating: numberOrNull(rottenTomatoes),
       });
     } catch (error) {
-      // The entries stay in the form, so nothing is lost and the user can try again.
       setFailure(error instanceof ApiError ? error.message : "The movie could not be saved. Please try again.");
       setIsSubmitting(false);
     }
@@ -109,7 +132,25 @@ export function MovieForm({ title, backLabel, submitLabel, movie, onSubmit }: Mo
           error={isSubmitted ? releaseDateError : undefined}
         />
         <FormField label="Director" placeholder="e.g. Christopher Nolan" value={director} onChangeText={setDirector} />
-        <FormField label="Genre" placeholder="e.g. Sci-Fi" value={genre} onChangeText={setGenre} />
+        <View style={styles.genre}>
+          <Text variant="labelLarge" style={styles.genreLabel}>
+            Genre
+          </Text>
+          <Menu
+            visible={isGenreMenuOpen}
+            onDismiss={() => setIsGenreMenuOpen(false)}
+            anchor={
+              <Button mode="outlined" icon="chevron-down" onPress={() => setIsGenreMenuOpen(true)}>
+                {genre || "Select genre"}
+              </Button>
+            }
+          >
+            <Menu.Item title="No genre" onPress={() => selectGenre("")} />
+            {GENRES.map((option) => (
+              <Menu.Item key={option} title={option} onPress={() => selectGenre(option)} />
+            ))}
+          </Menu>
+        </View>
         <FormField
           label="Running time (min)"
           placeholder="e.g. 148"
@@ -155,6 +196,12 @@ const styles = StyleSheet.create({
   content: {
     gap: 16,
     padding: 16,
+  },
+  genre: {
+    gap: 4,
+  },
+  genreLabel: {
+    fontWeight: "600",
   },
   row: {
     flexDirection: "row",
